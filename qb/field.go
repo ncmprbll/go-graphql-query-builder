@@ -4,6 +4,8 @@ import "fmt"
 
 type Field struct {
 	fieldName string
+
+	args []*Arg
 	fields    []*Field
 
 	depth uint8
@@ -14,6 +16,12 @@ func NewField(fieldName string) *Field {
 		fieldName: fieldName,
 		fields:    []*Field{},
 	}
+}
+
+func (f *Field) Args(args ...*Arg) *Field {
+	f.args = append(f.args, args...)
+
+	return f
 }
 
 func (f *Field) Fields(fields ...*Field) *Field {
@@ -32,8 +40,19 @@ func (f *Field) depthUpdate() {
 func (f *Field) String() string {
 	spaces := f.depth * PRETTY_PRINT_SPACES
 
+	args := ""
+	lenArgs := len(f.args)
+
+	for i := 0; i < lenArgs - 1; i++ {
+		args += fmt.Sprintf("%s, ", f.args[i].String())
+	}
+
+	if lenArgs > 0 {
+		args = "(" + args + f.args[lenArgs - 1].String() + ")"
+	}
+
 	if len(f.fields) == 0 {
-		return fmt.Sprintf("%*c%s", spaces, ' ', f.fieldName)
+		return fmt.Sprintf("%*c%s%s", spaces, ' ', f.fieldName, args)
 	}
 
 	fields := ""
@@ -42,5 +61,5 @@ func (f *Field) String() string {
 		fields += fmt.Sprintf("%s\n", v.String())
 	}
 
-	return fmt.Sprintf("%*c%s {\n%s%*c}", spaces, ' ', f.fieldName, fields, spaces, ' ')
+	return fmt.Sprintf("%*c%s%s {\n%s%*c}", spaces, ' ', f.fieldName, args, fields, spaces, ' ')
 }
