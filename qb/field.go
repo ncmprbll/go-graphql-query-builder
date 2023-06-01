@@ -7,6 +7,7 @@ type Field struct {
 
 	args []*Arg
 	fields    []*Field
+	alias string
 
 	depth uint8
 }
@@ -30,6 +31,12 @@ func (f *Field) Fields(fields ...*Field) *Field {
 	return f
 }
 
+func (f *Field) Alias(alias string) *Field {
+	f.alias = alias
+
+	return f
+}
+
 func (f *Field) depthUpdate() {
 	for _, field := range f.fields { 
 		field.depth = f.depth + 1
@@ -39,6 +46,12 @@ func (f *Field) depthUpdate() {
 
 func (f *Field) String() string {
 	spaces := f.depth * PRETTY_PRINT_SPACES
+
+	alias := ""
+
+	if f.alias != "" {
+		alias = f.alias + ": "
+	}
 
 	args := ""
 	lenArgs := len(f.args)
@@ -52,7 +65,7 @@ func (f *Field) String() string {
 	}
 
 	if len(f.fields) == 0 {
-		return fmt.Sprintf("%*c%s%s", spaces, ' ', f.fieldName, args)
+		return fmt.Sprintf("%*c%s%s%s", spaces, ' ', alias, f.fieldName, args)
 	}
 
 	fields := ""
@@ -61,5 +74,5 @@ func (f *Field) String() string {
 		fields += fmt.Sprintf("%s\n", v.String())
 	}
 
-	return fmt.Sprintf("%*c%s%s {\n%s%*c}", spaces, ' ', f.fieldName, args, fields, spaces, ' ')
+	return fmt.Sprintf("%*c%s%s%s {\n%s%*c}", spaces, ' ', alias, f.fieldName, args, fields, spaces, ' ')
 }
