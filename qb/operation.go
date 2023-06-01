@@ -7,6 +7,7 @@ type Operation struct {
 	operationName string
 
 	fields        []*Field
+	fragments     []*Fragment
 }
 
 func NewOperation(operationType int, operationName string) *Operation {
@@ -25,32 +26,53 @@ func NewMutation(mutationName string) *Operation {
 	return NewOperation(TYPE_MUTATION, mutationName)
 }
 
-func (q *Operation) Fields(fields ...*Field) *Operation {
+func (o *Operation) Fields(fields ...*Field) *Operation {
 	for _, field := range fields {
 		field.depth = 1
 		field.depthUpdate()
-		q.fields = append(q.fields, field)
+		o.fields = append(o.fields, field)
 	}
 
-	return q
+	return o
 }
 
-func (q *Operation) String() string {
-	if len(q.fields) == 0 {
-		return q.operationName + ""
+func (o *Operation) Fragments(fragments ...*Fragment) *Operation {
+	o.fragments = append(o.fragments, fragments...)
+
+	return o
+}
+
+func (o *Operation) String() string {
+	if len(o.fields) == 0 {
+		return o.operationName
 	}
 
 	fields := ""
 
-	for _, v := range q.fields { 
-		fields += fmt.Sprintf("%s\n", v.String())
+	for _, field := range o.fields { 
+		fields += fmt.Sprintf("%s\n", field.String())
 	}
 
-	operation := typeDescriptor[q.operationType]
+	operation := typeDescriptor[o.operationType] + " "
+	operationName := o.operationName
 
-	if q.operationName == "" {
-		return fmt.Sprintf("%s {\n%s}", operation, fields)
+	if operationName != "" {
+		operationName += " "
+	} else if o.operationType == TYPE_QUERY {
+		operation = ""
 	}
 
-	return fmt.Sprintf("%s %s {\n%s}", operation, q.operationName, fields)
+	fragments := ""
+
+	if len(o.fragments) != 0 {
+		fragments += "\n\n"
+
+		for _, fragment := range o.fragments { 
+			fragments += fmt.Sprintf("%s\n\n", fragment.String())
+		}
+
+		fragments = fragments[:len(fragments) - 2]
+	}
+
+	return fmt.Sprintf("%s%s{\n%s}%s", operation, operationName, fields, fragments)
 }
