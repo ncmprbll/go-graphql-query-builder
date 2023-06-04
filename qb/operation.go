@@ -6,6 +6,7 @@ type Operation struct {
 	operationType int
 	operationName string
 
+	vars []*Var
 	fields        []*Field
 	fragments     []*Fragment
 }
@@ -24,6 +25,12 @@ func NewQuery(queryName string) *Operation {
 
 func NewMutation(mutationName string) *Operation {
 	return NewOperation(TYPE_MUTATION, mutationName)
+}
+
+func (o *Operation) Vars(vars ...*Var) *Operation {
+	o.vars = append(o.vars, vars...) 
+
+	return o
 }
 
 func (o *Operation) Fields(fields ...*Field) *Operation {
@@ -56,10 +63,23 @@ func (o *Operation) String() string {
 	operation := typeDescriptor[o.operationType] + " "
 	operationName := o.operationName
 
-	if operationName != "" {
-		operationName += " "
-	} else if o.operationType == TYPE_QUERY {
+	if o.operationType == TYPE_QUERY {
 		operation = ""
+	}
+
+	vars := ""
+	lenVars := len(o.vars)
+
+	for i := 0; i < lenVars - 1; i++ {
+		vars += fmt.Sprintf("%s, ", o.vars[i].String())
+	}
+
+	if lenVars > 0 {
+		vars = "(" + vars + o.vars[lenVars - 1].String() + ")"
+	}
+
+	if operationName != "" {
+		operationName += vars + " "
 	}
 
 	fragments := ""
