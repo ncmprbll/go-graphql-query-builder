@@ -12,6 +12,7 @@ func NewVar(name, typ string) *Var {
 
 func (a *Var) Default(df string) *Var {
 	a.df = df
+
 	return a
 }
 
