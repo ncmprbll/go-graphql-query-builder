@@ -3,22 +3,28 @@ package qb
 import "fmt"
 
 type Var struct {
-	name string
-	typ  any
+	name, typ, df string
 }
 
 func NewVar(name, typ string) *Var {
-	return &Var{name: name, typ: typ}
+	return &Var{name, typ, ""}
 }
 
-func UseVar(argName, arg string) *Arg {
-	return NewArgNQ(argName, "$" + arg)
+func (a *Var) Default(df string) *Var {
+	a.df = df
+	return a
 }
 
 func (a *Var) ToArg(argName string) *Arg {
-	return NewArgNQ(argName, "$" + a.name)
+	return NewArgNQ(argName, a.name)
 }
 
 func (a *Var) String() string {
-	return fmt.Sprintf("$%s: %s", a.name, a.typ)
+	df := a.df
+
+	if df != "" {
+		df = " = " + df
+	}
+
+	return fmt.Sprintf("%s: %s%s", a.name, a.typ, df)
 }

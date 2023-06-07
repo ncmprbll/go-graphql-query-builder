@@ -3,18 +3,13 @@ package qb
 import "fmt"
 
 type Fragment struct {
-	name string
-	typ  any
+	name, typ string
 
 	fields []*Field
 }
 
 func NewFragment(name, typ string) *Fragment {
 	return &Fragment{name: name, typ: typ}
-}
-
-func UseFragment(name string) *Field {
-	return &Field{fieldName: "..." + name}
 }
 
 func (f *Fragment) Fields(fields ...*Field) *Fragment {
@@ -25,6 +20,14 @@ func (f *Fragment) Fields(fields ...*Field) *Fragment {
 	}
 
 	return f
+}
+
+func (f *Fragment) InlineToField() *Field {
+	return &Field{fieldName: "... on " + f.typ, fields: f.fields}
+}
+
+func (f *Fragment) ToField() *Field {
+	return NewField("..." + f.name)
 }
 
 func (f *Fragment) String() string {
