@@ -45,13 +45,13 @@ func (f *Field) Directives(directives ...*Directive) *Field {
 }
 
 func (f *Field) SkipIf(what string) *Field {
-	f.directives = append(f.directives, NewDirective("@skip").Args(NewArgNQ("if", what)))
+	f.directives = append(f.directives, NewDirective("@skip").Args(NewArg("if", what)))
 
 	return f
 }
 
 func (f *Field) IncludeIf(what string) *Field {
-	f.directives = append(f.directives, NewDirective("@include").Args(NewArgNQ("if", what)))
+	f.directives = append(f.directives, NewDirective("@include").Args(NewArg("if", what)))
 
 	return f
 }

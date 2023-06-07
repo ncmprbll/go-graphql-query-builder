@@ -17,7 +17,7 @@ func (a *Var) Default(df string) *Var {
 }
 
 func (a *Var) ToArg(argName string) *Arg {
-	return NewArgNQ(argName, a.name)
+	return NewArg(argName, a.name)
 }
 
 func (a *Var) String() string {

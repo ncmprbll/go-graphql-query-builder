@@ -3,60 +3,75 @@ package qb
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 type Arg struct {
-	wrapType int
-
-	name  string
+	name string
 	value any
+
+	wrap bool
 }
 
-func NewArg(t int, argName string, value any) *Arg {
-	return &Arg{t, argName, value}
+func NewArg(argName string, value any) *Arg {
+	return &Arg{argName, value, false}
 }
 
-func NewArgQ(argName string, value any) *Arg {
-	return NewArg(TYPE_ARG_QUOTES, argName, value)
-}
+func (a *Arg) Wrap() *Arg {
+	a.wrap = true
 
-func NewArgNQ(argName string, value any) *Arg {
-	return &Arg{TYPE_ARG_NO_QUOTES, argName, value}
+	return a
 }
 
 func (a *Arg) String() string {
-	value := ""
-
+	var b strings.Builder
 	v := reflect.ValueOf(a.value)
 
-	// Rework
-	if v.Kind() == reflect.Slice {
-		valueLen := v.Len()
+	b.WriteString(a.name)
+	b.WriteString(": ")
 
-		for i := 0; i < valueLen - 1; i++ {
-			if a.wrapType == TYPE_ARG_QUOTES {
-				value += "\"" + fmt.Sprintf("%v", v.Index(i).Interface()) + "\", "
-			} else if a.wrapType == TYPE_ARG_NO_QUOTES {
-				value += fmt.Sprintf("%v", v.Index(i).Interface()) + ", "
+	switch v.Kind() {
+	case reflect.Slice:
+		length := v.Len()
+
+		b.WriteByte('[')
+
+		for i := 0; i < length; i++ {
+			if a.wrap {
+				fmt.Fprintf(&b, "\"%v\"", v.Index(i).Interface())
+			} else {
+				fmt.Fprintf(&b, "%v", v.Index(i).Interface())
+			}
+
+			if i != length - 1 {
+				b.WriteString(", ")
 			}
 		}
+
+		b.WriteByte(']')
+	case reflect.Map:
+		b.WriteByte('{')
+
+		for _, key := range v.MapKeys() {
+            v := v.MapIndex(key)
 	
-		if valueLen > 0 {
-			if a.wrapType == TYPE_ARG_QUOTES {
-				value += "\"" + fmt.Sprintf("%v", v.Index(valueLen - 1).Interface()) + "\""
-			} else if a.wrapType == TYPE_ARG_NO_QUOTES {
-				value += fmt.Sprintf("%v", v.Index(valueLen - 1).Interface())
+			if a.wrap {
+				fmt.Fprintf(&b, "%v: \"%v\"", key, v)
+			} else {
+				fmt.Fprintf(&b, "%v: %v", key, v)
 			}
+
+			b.WriteString(", ")
 		}
 
-		value = "[" + value + "]"
-	} else {
-		if a.wrapType == TYPE_ARG_QUOTES {
-			value = "\"" + fmt.Sprintf("%v", a.value) + "\""
-		} else if a.wrapType == TYPE_ARG_NO_QUOTES {
-			value = fmt.Sprintf("%v", a.value)
+		return b.String()[:b.Len() - 2] + "}"
+	default:
+		if a.wrap {
+			fmt.Fprintf(&b, "\"%v\"", a.value)
+		} else {
+			fmt.Fprintf(&b, "%v", a.value)
 		}
 	}
 
-	return a.name + ": " + value
+	return b.String()
 }
