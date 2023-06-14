@@ -1,6 +1,9 @@
 package qb
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Var struct {
 	name, typ, df string
@@ -21,11 +24,16 @@ func (a *Var) ToArg(argName string) *Arg {
 }
 
 func (a *Var) String() string {
-	df := a.df
+	var b strings.Builder
 
-	if df != "" {
-		df = " = " + df
+	// Name and type
+	fmt.Fprintf(&b, "%s: %s", a.name, a.typ)
+
+	// Default value
+	if a.df != "" {
+		b.WriteString(" = ")
+		b.WriteString(a.df)
 	}
 
-	return fmt.Sprintf("%s: %s%s", a.name, a.typ, df)
+	return b.String()
 }

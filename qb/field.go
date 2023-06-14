@@ -1,6 +1,9 @@
 package qb
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Field struct {
 	fieldName string
@@ -64,40 +67,50 @@ func (f *Field) depthUpdate() {
 }
 
 func (f *Field) String() string {
+	var b strings.Builder
+
 	spaces := f.depth * PRETTY_PRINT_SPACES
 
-	alias := ""
+	fmt.Fprintf(&b, "%*c", spaces, ' ')
 
+	// Alias
 	if f.alias != "" {
-		alias = f.alias + ": "
+		b.WriteString(f.alias)
+		b.WriteString(": ")
 	}
 
-	args := ""
-	lenArgs := len(f.args)
+	// Field name with arguments
+	b.WriteString(f.fieldName)
 
-	for i := 0; i < lenArgs-1; i++ {
-		args += fmt.Sprintf("%s, ", f.args[i].String())
+	if len(f.args) > 0 {
+		b.WriteString("(")
+
+		for i := 0; i < len(f.args) - 1; i++ {
+			fmt.Fprintf(&b, "%s, ", f.args[i].String())
+		}
+	
+		b.WriteString(f.args[len(f.args) -1].String())
+		b.WriteString(")")
 	}
 
-	if lenArgs > 0 {
-		args = "(" + args + f.args[lenArgs-1].String() + ")"
-	}
+	b.WriteString(" ")
 
-	if len(f.fields) == 0 {
-		return fmt.Sprintf("%*c%s%s%s", spaces, ' ', alias, f.fieldName, args)
-	}
-
-	directives := ""
-
+	// Directives
 	for _, v := range f.directives {
-		directives += fmt.Sprintf("%s ", v.String())
+		fmt.Fprintf(&b, "%s ", v.String())
 	}
 
-	fields := ""
+	// Fields
+	if len(f.fields) != 0 {
+		b.WriteString("{\n")
 
-	for _, v := range f.fields {
-		fields += fmt.Sprintf("%s\n", v.String())
+		for _, v := range f.fields {
+			fmt.Fprintf(&b, "%s\n", v.String())
+		}
+
+		fmt.Fprintf(&b, "%*c", spaces, ' ')
+		b.WriteString("}")
 	}
 
-	return fmt.Sprintf("%*c%s%s%s %s{\n%s%*c}", spaces, ' ', alias, f.fieldName, args, directives, fields, spaces, ' ')
+	return b.String()
 }

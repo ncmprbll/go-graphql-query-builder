@@ -1,6 +1,9 @@
 package qb
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Fragment struct {
 	name, typ string
@@ -31,11 +34,23 @@ func (f *Fragment) ToField() *Field {
 }
 
 func (f *Fragment) String() string {
-	fields := ""
+	var b strings.Builder
 
-	for _, field := range f.fields { 
-		fields += fmt.Sprintf("%s\n", field.String())
+	// Fields depth reset
+	for _, field := range f.fields {
+		field.depth = 1
+		field.depthUpdate()
 	}
 
-	return fmt.Sprintf("fragment %s on %s {\n%s}", f.name, f.typ, fields)
+	// Name and type
+	fmt.Fprintf(&b, "fragment %s on %s {\n", f.name, f.typ)
+
+	// Fields
+	for _, field := range f.fields { 
+		fmt.Fprintf(&b, "%s\n", field.String())
+	}
+
+	b.WriteString("}")
+
+	return b.String()
 }

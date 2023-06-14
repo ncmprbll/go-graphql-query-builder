@@ -1,6 +1,9 @@
 package qb
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Operation struct {
 	operationType int
@@ -50,49 +53,51 @@ func (o *Operation) Fragments(fragments ...*Fragment) *Operation {
 }
 
 func (o *Operation) String() string {
-	if len(o.fields) == 0 {
-		return o.operationName
-	}
+	var b strings.Builder
 
-	fields := ""
+	// Operation type (query, mutation)
+	b.WriteString(typeDescriptor[o.operationType])
+	b.WriteString(" ")
 
-	for _, field := range o.fields { 
-		fields += fmt.Sprintf("%s\n", field.String())
-	}
+	// Operation name with arguments
+	if o.operationName != "" {
+ 		b.WriteString(o.operationName)
 
-	operation := typeDescriptor[o.operationType] + " "
-	operationName := o.operationName
+		if len(o.vars) > 0 {
+			b.WriteString("(")
 
-	if o.operationType == TYPE_QUERY {
-		operation = ""
-	}
+			for i := 0; i < len(o.vars) - 1; i++ {
+				fmt.Fprintf(&b, "%s, ", o.vars[i].String())
+			}
 
-	vars := ""
-	lenVars := len(o.vars)
-
-	for i := 0; i < lenVars - 1; i++ {
-		vars += fmt.Sprintf("%s, ", o.vars[i].String())
-	}
-
-	if lenVars > 0 {
-		vars = "(" + vars + o.vars[lenVars - 1].String() + ")"
-	}
-
-	if operationName != "" {
-		operationName += vars + " "
-	}
-
-	fragments := ""
-
-	if len(o.fragments) != 0 {
-		fragments += "\n\n"
-
-		for _, fragment := range o.fragments { 
-			fragments += fmt.Sprintf("%s\n\n", fragment.String())
+			b.WriteString(o.vars[len(o.vars) - 1].String())
+			b.WriteString(")")
 		}
 
-		fragments = fragments[:len(fragments) - 2]
+		b.WriteString(" ")
 	}
 
-	return fmt.Sprintf("%s%s{\n%s}%s", operation, operationName, fields, fragments)
+	// Fields
+	if len(o.fields) > 0 {
+		b.WriteString("{\n")
+
+		for _, field := range o.fields { 
+			fmt.Fprintf(&b, "%s\n", field.String())
+		}
+
+		b.WriteString("}")
+	}
+
+	// Fragments
+	if len(o.fragments) > 0 {
+		b.WriteString("\n\n")
+
+		for i := 0; i < len(o.fragments) - 1; i++ {
+			fmt.Fprintf(&b, "%s\n\n", o.fragments[i].String())
+		}
+
+		b.WriteString(o.fragments[len(o.fragments) - 1].String())
+	}
+
+	return b.String()
 }

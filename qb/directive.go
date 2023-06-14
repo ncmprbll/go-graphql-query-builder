@@ -1,6 +1,9 @@
 package qb
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Directive struct {
 	name string
@@ -19,15 +22,22 @@ func (d *Directive) Args(args ...*Arg) *Directive {
 }
 
 func (d *Directive) String() string {
-	args := ""
+	var b strings.Builder
 
-	for i := 0; i < len(d.args) - 1; i++ {
-		args += fmt.Sprintf("%s, ", d.args[i].String())
-	}
+	// Name
+	b.WriteString(d.name)
 
+	// Arguments
 	if len(d.args) > 0 {
-		args = "(" + args + d.args[len(d.args) - 1].String() + ")"
+		b.WriteString("(")
+
+		for i := 0; i < len(d.args) - 1; i++ {
+			fmt.Fprintf(&b, "%s, ", d.args[i].String())
+		}
+
+		b.WriteString(d.args[len(d.args) - 1].String())
+		b.WriteString(")")
 	}
 
-	return fmt.Sprintf("%s%s", d.name, args)
+	return b.String()
 }
