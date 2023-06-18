@@ -1,6 +1,7 @@
 package qb
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 )
@@ -12,8 +13,6 @@ type Field struct {
 	directives []*Directive
 	fields     []*Field
 	alias      string
-
-	depth uint8
 }
 
 func NewField(fieldName string) *Field {
@@ -59,19 +58,14 @@ func (f *Field) IncludeIf(what string) *Field {
 	return f
 }
 
-func (f *Field) depthUpdate() {
-	for _, field := range f.fields {
-		field.depth = f.depth + 1
-		field.depthUpdate()
-	}
-}
-
-func (f *Field) String() string {
+func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (string, error) {
 	var b strings.Builder
 
-	spaces := f.depth * PRETTY_PRINT_SPACES
+	if _, ok := visited[f]; ok {
+		return "", errors.New("cycle detected")
+	}
 
-	fmt.Fprintf(&b, "%*c", spaces, ' ')
+	visited[f] = struct{}{}
 
 	// Alias
 	if f.alias != "" {
@@ -80,7 +74,7 @@ func (f *Field) String() string {
 	}
 
 	// Field name with arguments
-	b.WriteString(f.fieldName)
+	fmt.Fprintf(&b, "%*c%s", spaces, ' ', f.fieldName)
 
 	if len(f.args) > 0 {
 		b.WriteString("(")
@@ -105,12 +99,24 @@ func (f *Field) String() string {
 		b.WriteString("{\n")
 
 		for _, v := range f.fields {
-			fmt.Fprintf(&b, "%s\n", v.String())
+			s, err := v.prettyString(spaces + inc, inc, visited)
+
+			if err != nil {
+				return "", err
+			}
+
+			fmt.Fprintf(&b, "%s\n", s)
 		}
 
 		fmt.Fprintf(&b, "%*c", spaces, ' ')
 		b.WriteString("}")
 	}
 
-	return b.String()
+	return b.String(), nil
+}
+
+func (f *Field) String(spaces int) (string, error) {
+	visited := map[*Field]struct{}{}
+
+	return f.prettyString(spaces, spaces, visited)
 }

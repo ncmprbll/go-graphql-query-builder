@@ -16,11 +16,7 @@ func NewFragment(name, typ string) *Fragment {
 }
 
 func (f *Fragment) Fields(fields ...*Field) *Fragment {
-	for _, field := range fields {
-		field.depth = 1
-		field.depthUpdate()
-		f.fields = append(f.fields, field)
-	}
+	f.fields = append(f.fields, fields...)
 
 	return f
 }
@@ -33,24 +29,24 @@ func (f *Fragment) ToField() *Field {
 	return NewField("..." + f.name)
 }
 
-func (f *Fragment) String() string {
+func (f *Fragment) String(spaces int) (string, error) {
 	var b strings.Builder
-
-	// Fields depth reset
-	for _, field := range f.fields {
-		field.depth = 1
-		field.depthUpdate()
-	}
 
 	// Name and type
 	fmt.Fprintf(&b, "fragment %s on %s {\n", f.name, f.typ)
 
 	// Fields
 	for _, field := range f.fields { 
-		fmt.Fprintf(&b, "%s\n", field.String())
+		s, err := field.String(spaces)
+
+		if err != nil {
+			return "", err
+		}
+
+		fmt.Fprintf(&b, "%s\n", s)
 	}
 
 	b.WriteString("}")
 
-	return b.String()
+	return b.String(), nil
 }

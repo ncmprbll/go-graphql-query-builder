@@ -37,11 +37,7 @@ func (o *Operation) Vars(vars ...*Var) *Operation {
 }
 
 func (o *Operation) Fields(fields ...*Field) *Operation {
-	for _, field := range fields {
-		field.depth = 1
-		field.depthUpdate()
-		o.fields = append(o.fields, field)
-	}
+	o.fields = append(o.fields, fields...)
 
 	return o
 }
@@ -52,7 +48,7 @@ func (o *Operation) Fragments(fragments ...*Fragment) *Operation {
 	return o
 }
 
-func (o *Operation) String() string {
+func (o *Operation) String(spaces int) (string, error) {
 	var b strings.Builder
 
 	// Operation type (query, mutation)
@@ -81,8 +77,14 @@ func (o *Operation) String() string {
 	if len(o.fields) > 0 {
 		b.WriteString("{\n")
 
-		for _, field := range o.fields { 
-			fmt.Fprintf(&b, "%s\n", field.String())
+		for _, field := range o.fields {
+			s, err := field.String(spaces)
+
+			if err != nil {
+				return "", err
+			}
+
+			fmt.Fprintf(&b, "%s\n", s)
 		}
 
 		b.WriteString("}")
@@ -93,11 +95,23 @@ func (o *Operation) String() string {
 		b.WriteString("\n\n")
 
 		for i := 0; i < len(o.fragments) - 1; i++ {
-			fmt.Fprintf(&b, "%s\n\n", o.fragments[i].String())
+			s, err := o.fragments[i].String(spaces)
+
+			if err != nil {
+				return "", err
+			}
+
+			fmt.Fprintf(&b, "%s\n\n", s)
 		}
 
-		b.WriteString(o.fragments[len(o.fragments) - 1].String())
+		s, err := o.fragments[len(o.fragments) - 1].String(spaces)
+
+		if err != nil {
+			return "", err
+		}
+
+		b.WriteString(s)
 	}
 
-	return b.String()
+	return b.String(), nil
 }
