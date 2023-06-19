@@ -48,7 +48,24 @@ func (o *Operation) Fragments(fragments ...*Fragment) *Operation {
 	return o
 }
 
-func (o *Operation) String(spaces int) (string, error) {
+func (o *Operation) String() (string, error) {
+	s, err := o.PrettyString(0)
+
+	if err != nil {
+		return "", err
+	}
+
+	s = strings.ReplaceAll(s, "\n}", "}")
+	s = strings.ReplaceAll(s, "}\n", "} ")
+	s = strings.ReplaceAll(s, " }", "}")
+	s = strings.ReplaceAll(s, "\n", " ")
+	s = strings.ReplaceAll(s, "{ ", "{")
+	s = strings.ReplaceAll(s, "  ", " ")
+
+	return s, nil
+}
+
+func (o *Operation) PrettyString(spaces int) (string, error) {
 	var b strings.Builder
 
 	// Operation type (query, mutation)

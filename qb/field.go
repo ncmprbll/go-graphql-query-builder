@@ -67,6 +67,10 @@ func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (stri
 
 	visited[f] = struct{}{}
 
+	if spaces != 0 {
+		fmt.Fprintf(&b, "%*c", spaces, ' ')
+	}
+
 	// Alias
 	if f.alias != "" {
 		b.WriteString(f.alias)
@@ -74,7 +78,7 @@ func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (stri
 	}
 
 	// Field name with arguments
-	fmt.Fprintf(&b, "%*c%s", spaces, ' ', f.fieldName)
+	fmt.Fprintf(&b, "%s", f.fieldName)
 
 	if len(f.args) > 0 {
 		b.WriteString("(")
@@ -108,7 +112,10 @@ func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (stri
 			fmt.Fprintf(&b, "%s\n", s)
 		}
 
-		fmt.Fprintf(&b, "%*c", spaces, ' ')
+		if spaces != 0 {
+			fmt.Fprintf(&b, "%*c", spaces, ' ')
+		}
+
 		b.WriteString("}")
 	}
 
