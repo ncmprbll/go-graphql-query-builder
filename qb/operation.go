@@ -6,28 +6,28 @@ import (
 )
 
 type Operation struct {
-	operationType int
-	operationName string
+	name string
+	typ int
 
+	fields []*Field
 	vars []*Var
-	fields        []*Field
-	fragments     []*Fragment
+	fragments []*Fragment
 }
 
-func NewOperation(operationType int, operationName string) *Operation {
+func NewOperation(name string, typ int) *Operation {
 	return &Operation{
-		operationType: operationType,
-		operationName: operationName,
-		fields:        []*Field{},
+		name: name,
+		typ: typ,
+		fields: []*Field{},
 	}
 }
 
-func NewQuery(queryName string) *Operation {
-	return NewOperation(TYPE_QUERY, queryName)
+func NewQuery(name string) *Operation {
+	return NewOperation(name, TYPE_QUERY)
 }
 
-func NewMutation(mutationName string) *Operation {
-	return NewOperation(TYPE_MUTATION, mutationName)
+func NewMutation(name string) *Operation {
+	return NewOperation(name, TYPE_MUTATION)
 }
 
 func (o *Operation) Vars(vars ...*Var) *Operation {
@@ -69,12 +69,12 @@ func (o *Operation) PrettyString(spaces int) (string, error) {
 	var b strings.Builder
 
 	// Operation type (query, mutation)
-	b.WriteString(typeDescriptor[o.operationType])
+	b.WriteString(typeDescriptor[o.typ])
 	b.WriteString(" ")
 
 	// Operation name with arguments
-	if o.operationName != "" {
- 		b.WriteString(o.operationName)
+	if o.name != "" {
+ 		b.WriteString(o.name)
 
 		if len(o.vars) > 0 {
 			b.WriteString("(")

@@ -9,7 +9,6 @@ import (
 type Arg struct {
 	name string
 	value any
-
 	wrap bool
 }
 

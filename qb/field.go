@@ -7,18 +7,16 @@ import (
 )
 
 type Field struct {
-	fieldName string
+	name, alias string
 
+	fields     []*Field
 	args       []*Arg
 	directives []*Directive
-	fields     []*Field
-	alias      string
 }
 
-func NewField(fieldName string) *Field {
+func NewField(name string) *Field {
 	return &Field{
-		fieldName: fieldName,
-		fields:    []*Field{},
+		name: name,
 	}
 }
 
@@ -46,13 +44,13 @@ func (f *Field) Directives(directives ...*Directive) *Field {
 	return f
 }
 
-func (f *Field) SkipIf(what string) *Field {
+func (f *Field) SkipIf(what any) *Field {
 	f.directives = append(f.directives, NewDirective("@skip").Args(NewArg("if", what)))
 
 	return f
 }
 
-func (f *Field) IncludeIf(what string) *Field {
+func (f *Field) IncludeIf(what any) *Field {
 	f.directives = append(f.directives, NewDirective("@include").Args(NewArg("if", what)))
 
 	return f
@@ -78,7 +76,7 @@ func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (stri
 	}
 
 	// Field name with arguments
-	fmt.Fprintf(&b, "%s", f.fieldName)
+	fmt.Fprintf(&b, "%s", f.name)
 
 	if len(f.args) > 0 {
 		b.WriteString("(")

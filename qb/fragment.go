@@ -22,7 +22,7 @@ func (f *Fragment) Fields(fields ...*Field) *Fragment {
 }
 
 func (f *Fragment) InlineToField() *Field {
-	return &Field{fieldName: "... on " + f.typ, fields: f.fields}
+	return &Field{name: "... on " + f.typ, fields: f.fields}
 }
 
 func (f *Fragment) ToField() *Field {
