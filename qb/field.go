@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+var ErrCycle = errors.New("cycle detected")
+
 type Field struct {
 	name, alias string
 
@@ -60,7 +62,7 @@ func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (stri
 	var b strings.Builder
 
 	if _, ok := visited[f]; ok {
-		return "", errors.New("cycle detected")
+		return "", ErrCycle
 	}
 
 	visited[f] = struct{}{}
@@ -81,11 +83,11 @@ func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (stri
 	if len(f.args) > 0 {
 		b.WriteString("(")
 
-		for i := 0; i < len(f.args) - 1; i++ {
+		for i := 0; i < len(f.args)-1; i++ {
 			fmt.Fprintf(&b, "%s, ", f.args[i].String())
 		}
-	
-		b.WriteString(f.args[len(f.args) -1].String())
+
+		b.WriteString(f.args[len(f.args)-1].String())
 		b.WriteString(")")
 	}
 
@@ -101,7 +103,7 @@ func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (stri
 		b.WriteString("{\n")
 
 		for _, v := range f.fields {
-			s, err := v.prettyString(spaces + inc, inc, visited)
+			s, err := v.prettyString(spaces+inc, inc, visited)
 
 			if err != nil {
 				return "", err

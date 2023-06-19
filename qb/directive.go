@@ -31,11 +31,11 @@ func (d *Directive) String() string {
 	if len(d.args) > 0 {
 		b.WriteString("(")
 
-		for i := 0; i < len(d.args) - 1; i++ {
+		for i := 0; i < len(d.args)-1; i++ {
 			fmt.Fprintf(&b, "%s, ", d.args[i].String())
 		}
 
-		b.WriteString(d.args[len(d.args) - 1].String())
+		b.WriteString(d.args[len(d.args)-1].String())
 		b.WriteString(")")
 	}
 

@@ -7,13 +7,13 @@ import (
 )
 
 type Arg struct {
-	name string
+	name  string
 	value any
-	wrap bool
+	wrap  bool
 }
 
-func NewArg(argName string, value any) *Arg {
-	return &Arg{argName, value, false}
+func NewArg(name string, value any) *Arg {
+	return &Arg{name, value, false}
 }
 
 func (a *Arg) Wrap() *Arg {
@@ -43,7 +43,7 @@ func (a *Arg) String() string {
 				fmt.Fprintf(&b, "%v", v.Index(i).Interface())
 			}
 
-			if i != length - 1 {
+			if i != length-1 {
 				b.WriteString(", ")
 			}
 		}
@@ -53,8 +53,8 @@ func (a *Arg) String() string {
 		b.WriteByte('{')
 
 		for _, key := range v.MapKeys() {
-            v := v.MapIndex(key)
-	
+			v := v.MapIndex(key)
+
 			if a.wrap {
 				fmt.Fprintf(&b, "%v: \"%v\"", key, v)
 			} else {
@@ -64,7 +64,7 @@ func (a *Arg) String() string {
 			b.WriteString(", ")
 		}
 
-		return b.String()[:b.Len() - 2] + "}"
+		return b.String()[:b.Len()-2] + "}"
 	default:
 		if a.wrap {
 			fmt.Fprintf(&b, "\"%v\"", a.value)

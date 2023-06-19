@@ -11,6 +11,6 @@ const (
 )
 
 var typeDescriptor = map[int]string{
-	TYPE_QUERY: "query",
+	TYPE_QUERY:    "query",
 	TYPE_MUTATION: "mutation",
 }

@@ -36,7 +36,7 @@ func (f *Fragment) String(spaces int) (string, error) {
 	fmt.Fprintf(&b, "fragment %s on %s {\n", f.name, f.typ)
 
 	// Fields
-	for _, field := range f.fields { 
+	for _, field := range f.fields {
 		s, err := field.String(spaces)
 
 		if err != nil {

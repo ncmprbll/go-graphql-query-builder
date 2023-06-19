@@ -7,17 +7,17 @@ import (
 
 type Operation struct {
 	name string
-	typ int
+	typ  int
 
-	fields []*Field
-	vars []*Var
+	fields    []*Field
+	vars      []*Var
 	fragments []*Fragment
 }
 
 func NewOperation(name string, typ int) *Operation {
 	return &Operation{
-		name: name,
-		typ: typ,
+		name:   name,
+		typ:    typ,
 		fields: []*Field{},
 	}
 }
@@ -31,7 +31,7 @@ func NewMutation(name string) *Operation {
 }
 
 func (o *Operation) Vars(vars ...*Var) *Operation {
-	o.vars = append(o.vars, vars...) 
+	o.vars = append(o.vars, vars...)
 
 	return o
 }
@@ -74,16 +74,16 @@ func (o *Operation) PrettyString(spaces int) (string, error) {
 
 	// Operation name with arguments
 	if o.name != "" {
- 		b.WriteString(o.name)
+		b.WriteString(o.name)
 
 		if len(o.vars) > 0 {
 			b.WriteString("(")
 
-			for i := 0; i < len(o.vars) - 1; i++ {
+			for i := 0; i < len(o.vars)-1; i++ {
 				fmt.Fprintf(&b, "%s, ", o.vars[i].String())
 			}
 
-			b.WriteString(o.vars[len(o.vars) - 1].String())
+			b.WriteString(o.vars[len(o.vars)-1].String())
 			b.WriteString(")")
 		}
 
@@ -111,7 +111,7 @@ func (o *Operation) PrettyString(spaces int) (string, error) {
 	if len(o.fragments) > 0 {
 		b.WriteString("\n\n")
 
-		for i := 0; i < len(o.fragments) - 1; i++ {
+		for i := 0; i < len(o.fragments)-1; i++ {
 			s, err := o.fragments[i].String(spaces)
 
 			if err != nil {
@@ -121,7 +121,7 @@ func (o *Operation) PrettyString(spaces int) (string, error) {
 			fmt.Fprintf(&b, "%s\n\n", s)
 		}
 
-		s, err := o.fragments[len(o.fragments) - 1].String(spaces)
+		s, err := o.fragments[len(o.fragments)-1].String(spaces)
 
 		if err != nil {
 			return "", err
