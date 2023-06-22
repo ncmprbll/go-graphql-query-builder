@@ -61,12 +61,6 @@ func (f *Field) IncludeIf(what any) *Field {
 func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (string, error) {
 	var b strings.Builder
 
-	if _, ok := visited[f]; ok {
-		return "", ErrCycle
-	}
-
-	visited[f] = struct{}{}
-
 	if spaces != 0 {
 		fmt.Fprintf(&b, "%*c", spaces, ' ')
 	}
@@ -103,7 +97,19 @@ func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (stri
 		b.WriteString("{\n")
 
 		for _, v := range f.fields {
-			s, err := v.prettyString(spaces+inc, inc, visited)
+			if _, ok := visited[v]; ok {
+				return "", ErrCycle
+			}
+
+			newvisited := map[*Field]struct{}{}
+
+			for k, v := range visited {
+				newvisited[k] = v
+			}
+		
+			newvisited[v] = struct{}{}
+
+			s, err := v.prettyString(spaces+inc, inc, newvisited)
 
 			if err != nil {
 				return "", err

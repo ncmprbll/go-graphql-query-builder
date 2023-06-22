@@ -216,8 +216,7 @@ var operationTests = []operationTest{
 			name := NewField("name")
 
 			return NewQuery("Hero").Fields(
-				NewField("hero").Fields(
-					name,
+				name.Fields(
 					NewField("friends").Fields(
 						name,
 					),
