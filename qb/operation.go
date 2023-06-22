@@ -5,6 +5,16 @@ import (
 	"strings"
 )
 
+const (
+	TYPE_QUERY = iota
+	TYPE_MUTATION
+)
+
+var typeDescriptor = map[int]string{
+	TYPE_QUERY:    "query",
+	TYPE_MUTATION: "mutation",
+}
+
 type Operation struct {
 	name string
 	typ  int
@@ -14,7 +24,7 @@ type Operation struct {
 	fragments []*Fragment
 }
 
-func NewOperation(name string, typ int) *Operation {
+func newOperation(name string, typ int) *Operation {
 	return &Operation{
 		name:   name,
 		typ:    typ,
@@ -23,11 +33,11 @@ func NewOperation(name string, typ int) *Operation {
 }
 
 func NewQuery(name string) *Operation {
-	return NewOperation(name, TYPE_QUERY)
+	return newOperation(name, TYPE_QUERY)
 }
 
 func NewMutation(name string) *Operation {
-	return NewOperation(name, TYPE_MUTATION)
+	return newOperation(name, TYPE_MUTATION)
 }
 
 func (o *Operation) Vars(vars ...*Var) *Operation {
