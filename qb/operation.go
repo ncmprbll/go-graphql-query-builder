@@ -6,13 +6,13 @@ import (
 )
 
 const (
-	TYPE_QUERY = iota
-	TYPE_MUTATION
+	TypeQuery = iota
+	TypeMutation
 )
 
 var typeDescriptor = map[int]string{
-	TYPE_QUERY:    "query",
-	TYPE_MUTATION: "mutation",
+	TypeQuery:    "query",
+	TypeMutation: "mutation",
 }
 
 type Operation struct {
@@ -33,11 +33,11 @@ func newOperation(name string, typ int) *Operation {
 }
 
 func NewQuery(name string) *Operation {
-	return newOperation(name, TYPE_QUERY)
+	return newOperation(name, TypeQuery)
 }
 
 func NewMutation(name string) *Operation {
-	return newOperation(name, TYPE_MUTATION)
+	return newOperation(name, TypeMutation)
 }
 
 func (o *Operation) Vars(vars ...*Var) *Operation {

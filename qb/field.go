@@ -3,6 +3,7 @@ package qb
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"strings"
 )
 
@@ -77,7 +78,7 @@ func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (stri
 	if len(f.args) > 0 {
 		b.WriteString("(")
 
-		for i := 0; i < len(f.args)-1; i++ {
+		for i := range len(f.args) - 1 {
 			fmt.Fprintf(&b, "%s, ", f.args[i].String())
 		}
 
@@ -103,10 +104,8 @@ func (f *Field) prettyString(spaces, inc int, visited map[*Field]struct{}) (stri
 
 			newvisited := map[*Field]struct{}{}
 
-			for k, v := range visited {
-				newvisited[k] = v
-			}
-		
+			maps.Copy(newvisited, visited)
+
 			newvisited[v] = struct{}{}
 
 			s, err := v.prettyString(spaces+inc, inc, newvisited)

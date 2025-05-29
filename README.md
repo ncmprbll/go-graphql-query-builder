@@ -18,7 +18,7 @@ This library was partly inspired by [udacity/graphb](https://github.com/udacity/
 * Inline Fragments
 
 # Examples
-## Example #1 - general query building
+## Example #1 - General query building
 
 ```graphql
 query {
