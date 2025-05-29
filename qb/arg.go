@@ -27,8 +27,10 @@ func (a *Arg) String() string {
 	v := reflect.ValueOf(a.value)
 
 	// Name
-	b.WriteString(a.name)
-	b.WriteString(": ")
+	if a.name != "" {
+		b.WriteString(a.name)
+		b.WriteString(": ")
+	}
 
 	switch v.Kind() {
 	case reflect.Slice:
@@ -38,9 +40,9 @@ func (a *Arg) String() string {
 
 		for i := 0; i < length; i++ {
 			if a.wrap {
-				fmt.Fprintf(&b, "\"%v\"", v.Index(i).Interface())
+				fmt.Fprintf(&b, "\"%v\"", NewArg("", v.Index(i).Interface()).String())
 			} else {
-				fmt.Fprintf(&b, "%v", v.Index(i).Interface())
+				fmt.Fprintf(&b, "%v", NewArg("", v.Index(i).Interface()).String())
 			}
 
 			if i != length-1 {
@@ -56,9 +58,9 @@ func (a *Arg) String() string {
 			v := v.MapIndex(key)
 
 			if a.wrap {
-				fmt.Fprintf(&b, "%v: \"%v\"", key, v)
+				fmt.Fprintf(&b, "%v: \"%v\"", key, NewArg("", v.Interface()).String())
 			} else {
-				fmt.Fprintf(&b, "%v: %v", key, v)
+				fmt.Fprintf(&b, "%v: %v", key, NewArg("", v.Interface()).String())
 			}
 
 			b.WriteString(", ")
